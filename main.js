@@ -20,22 +20,22 @@ var fuzzer =
             // MUTATE IMPLEMENTATION HERE
             var array = val.split('');
             do {
-              if( fuzzer.random.bool(0.05) )
-              {
-                  // REVERSE
-                  // array = array.reverse();
-              }
-              // delete random characters
-              if( fuzzer.random.bool(0.25) )
-              {
-                  // array.splice(fuzzer.random.integer(0,99),1)
-              }
+                if( fuzzer.random.bool(0.05) )
+                {
+                    // REVERSE
+                    array = array.reverse();
+                }
+                // delete random characters
+                if( fuzzer.random.bool(0.25) )
+                {
+                    array.splice(fuzzer.random.integer(0,99),1)
+                }
 
-              // add random characters
-              if( fuzzer.random.bool(0.25) )
-              {
-                  array.splice(fuzzer.random.integer(0,99), 0, ...fuzzer.random.string(10))
-              }
+                // add random characters
+                if( fuzzer.random.bool(0.25) )
+                {
+                    array.splice(fuzzer.random.integer(0,99), 0, ...fuzzer.random.string(10))
+                }
             } while ( fuzzer.random.bool(0.05) )
 
             return array.join('');
