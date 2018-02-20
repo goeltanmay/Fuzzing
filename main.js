@@ -4,10 +4,10 @@ var Random = require('random-js')
     stackTrace = require('stacktrace-parser')
     ;
 
-var fuzzer = 
+var fuzzer =
 {
     random : new Random(Random.engines.mt19937().seed(0)),
-    
+
     seed: function (kernel)
     {
         fuzzer.random = new Random(Random.engines.mt19937().seed(kernel));
@@ -19,19 +19,24 @@ var fuzzer =
         {
             // MUTATE IMPLEMENTATION HERE
             var array = val.split('');
+            do {
+              if( fuzzer.random.bool(0.05) )
+              {
+                  // REVERSE
+                  // array = array.reverse();
+              }
+              // delete random characters
+              if( fuzzer.random.bool(0.25) )
+              {
+                  // array.splice(fuzzer.random.integer(0,99),1)
+              }
 
-            if( fuzzer.random.bool(0.05) )
-            {
-                // REVERSE
-            }
-            // delete random characters
-            if( fuzzer.random.bool(0.25) )
-            {
-                //fuzzer.random.integer(0,99)
-            }
-
-            // add random characters
-            // fuzzer.random.string(10)
+              // add random characters
+              if( fuzzer.random.bool(0.25) )
+              {
+                  array.splice(fuzzer.random.integer(0,99), 0, ...fuzzer.random.string(10))
+              }
+            } while ( fuzzer.random.bool(0.05) )
 
             return array.join('');
         }
@@ -45,18 +50,21 @@ if( process.env.NODE_ENV != "test")
 }
 
 function mutationTesting(paths,iterations)
-{    
+{
     var failedTests = [];
     var reducedTests = [];
     var passedTests = 0;
-    
+
     var markDownA = fs.readFileSync(paths[0],'utf-8');
     var markDownB = fs.readFileSync(paths[1],'utf-8');
-    
-    for (var i = 0; i < iterations; i++) {
 
-        let mutuatedString = fuzzer.mutate.string(markDownA);
-        
+    for (var i = 0; i < iterations; i++) {
+        let mutuatedString = null;
+        if (i%2==0){
+          mutuatedString = fuzzer.mutate.string(markDownA);
+        }else{
+          mutuatedString = fuzzer.mutate.string(markDownB);
+        }
         try
         {
             marqdown.render(mutuatedString);
@@ -81,13 +89,16 @@ function mutationTesting(paths,iterations)
         let key = trace[0].methodName + "." + trace[0].lineNumber;
         if( !reduced.hasOwnProperty( key ) )
         {
+          reduced[key] = failed
+          reducedTests.push(failed)
         }
     }
 
     console.log( "passed {0}, failed {1}, reduced {2}".format(passedTests, failedTests.length, reducedTests.length) );
-    
+
     for( var key in reduced )
     {
+        console.log(key)
         console.log( reduced[key] );
     }
 
@@ -99,7 +110,7 @@ exports.fuzzer = fuzzer;
 if (!String.prototype.format) {
   String.prototype.format = function() {
     var args = arguments;
-    return this.replace(/{(\d+)}/g, function(match, number) { 
+    return this.replace(/{(\d+)}/g, function(match, number) {
       return typeof args[number] != 'undefined'
         ? args[number]
         : match
