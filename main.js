@@ -89,7 +89,7 @@ function mutationTesting(paths,iterations)
         let key = trace[0].methodName + "." + trace[0].lineNumber;
         if( !reduced.hasOwnProperty( key ) )
         {
-          reduced[key] = failed
+          reduced[key] = '$(msg) $(key)';
           reducedTests.push(failed)
         }
     }
@@ -99,7 +99,7 @@ function mutationTesting(paths,iterations)
     for( var key in reduced )
     {
         console.log(key)
-        console.log( reduced[key] );
+        // console.log( reduced[key] );
     }
 
 }
